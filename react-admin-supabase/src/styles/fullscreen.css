@@ -1,0 +1,178 @@
+/* Full Screen Responsive Styles */
+
+/* Reset default margins and paddings */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+#root {
+  height: 100vh;
+  width: 100vw;
+  position: relative;
+}
+
+/* Mobile First Approach */
+@media (max-width: 600px) {
+  /* Mobile styles */
+  .MuiContainer-root {
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+  }
+  
+  .MuiPaper-root {
+    margin: 8px !important;
+  }
+  
+  .MuiButton-root {
+    min-height: 40px !important;
+  }
+  
+  .MuiTextField-root {
+    margin-bottom: 16px !important;
+  }
+}
+
+/* Tablet styles */
+@media (min-width: 601px) and (max-width: 960px) {
+  .MuiContainer-root {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+  
+  .MuiPaper-root {
+    margin: 16px !important;
+  }
+  
+  .MuiButton-root {
+    min-height: 44px !important;
+  }
+}
+
+/* Desktop styles */
+@media (min-width: 961px) {
+  .MuiContainer-root {
+    padding-left: 24px !important;
+    padding-right: 24px !important;
+  }
+  
+  .MuiPaper-root {
+    margin: 24px !important;
+  }
+  
+  .MuiButton-root {
+    min-height: 48px !important;
+  }
+}
+
+/* Full screen containers */
+.fullscreen-container {
+  height: 100vh;
+  width: 100vw;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  overflow: auto;
+  box-sizing: border-box;
+}
+
+/* Responsive text sizes */
+.responsive-text-xs {
+  font-size: 0.75rem !important;
+}
+
+.responsive-text-sm {
+  font-size: 0.875rem !important;
+}
+
+.responsive-text-md {
+  font-size: 1rem !important;
+}
+
+.responsive-text-lg {
+  font-size: 1.125rem !important;
+}
+
+.responsive-text-xl {
+  font-size: 1.25rem !important;
+}
+
+@media (max-width: 600px) {
+  .responsive-text-xs { font-size: 0.7rem !important; }
+  .responsive-text-sm { font-size: 0.8rem !important; }
+  .responsive-text-md { font-size: 0.9rem !important; }
+  .responsive-text-lg { font-size: 1rem !important; }
+  .responsive-text-xl { font-size: 1.1rem !important; }
+}
+
+@media (min-width: 601px) and (max-width: 960px) {
+  .responsive-text-xs { font-size: 0.75rem !important; }
+  .responsive-text-sm { font-size: 0.875rem !important; }
+  .responsive-text-md { font-size: 1rem !important; }
+  .responsive-text-lg { font-size: 1.125rem !important; }
+  .responsive-text-xl { font-size: 1.25rem !important; }
+}
+
+/* Responsive spacing */
+.responsive-p-xs { padding: 8px !important; }
+.responsive-p-sm { padding: 16px !important; }
+.responsive-p-md { padding: 24px !important; }
+.responsive-p-lg { padding: 32px !important; }
+
+.responsive-m-xs { margin: 8px !important; }
+.responsive-m-sm { margin: 16px !important; }
+.responsive-m-md { margin: 24px !important; }
+.responsive-m-lg { margin: 32px !important; }
+
+@media (max-width: 600px) {
+  .responsive-p-xs { padding: 4px !important; }
+  .responsive-p-sm { padding: 8px !important; }
+  .responsive-p-md { padding: 16px !important; }
+  .responsive-p-lg { padding: 24px !important; }
+  
+  .responsive-m-xs { margin: 4px !important; }
+  .responsive-m-sm { margin: 8px !important; }
+  .responsive-m-md { margin: 16px !important; }
+  .responsive-m-lg { margin: 24px !important; }
+}
+
+@media (min-width: 601px) and (max-width: 960px) {
+  .responsive-p-xs { padding: 6px !important; }
+  .responsive-p-sm { padding: 12px !important; }
+  .responsive-p-md { padding: 20px !important; }
+  .responsive-p-lg { padding: 28px !important; }
+  
+  .responsive-m-xs { margin: 6px !important; }
+  .responsive-m-sm { margin: 12px !important; }
+  .responsive-m-md { margin: 20px !important; }
+  .responsive-m-lg { margin: 28px !important; }
+}
+
+/* Hide scrollbars on mobile */
+@media (max-width: 960px) {
+  ::-webkit-scrollbar {
+    width: 0px;
+    background: transparent;
+  }
+}
+
+/* Ensure proper touch targets on mobile */
+@media (max-width: 960px) {
+  .MuiButton-root,
+  .MuiIconButton-root,
+  button {
+    min-height: 44px !important;
+    min-width: 44px !important;
+  }
+}
+

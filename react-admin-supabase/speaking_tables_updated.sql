@@ -1,0 +1,159 @@
+-- Tạo bảng speaking_topics để lưu trữ các chủ đề luyện nói
+CREATE TABLE IF NOT EXISTS speaking_topics (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Tạo bảng speaking_lessons để lưu trữ các bài học trong từng chủ đề
+CREATE TABLE IF NOT EXISTS speaking_lessons (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    topic_id UUID NOT NULL REFERENCES speaking_topics(id) ON DELETE CASCADE,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Tạo bảng speaking_questions để lưu trữ các câu hỏi trong từng bài học
+CREATE TABLE IF NOT EXISTS speaking_questions (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    lesson_id UUID NOT NULL REFERENCES speaking_lessons(id) ON DELETE CASCADE,
+    question_text TEXT NOT NULL,
+    difficulty VARCHAR(20) CHECK (difficulty IN ('easy', 'medium', 'hard')) DEFAULT 'easy',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Tạo indexes để tối ưu hiệu suất
+CREATE INDEX IF NOT EXISTS idx_speaking_lessons_topic_id ON speaking_lessons(topic_id);
+CREATE INDEX IF NOT EXISTS idx_speaking_questions_lesson_id ON speaking_questions(lesson_id);
+CREATE INDEX IF NOT EXISTS idx_speaking_questions_difficulty ON speaking_questions(difficulty);
+CREATE INDEX IF NOT EXISTS idx_speaking_topics_created_at ON speaking_topics(created_at);
+
+-- Tạo function để tự động cập nhật updated_at
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = NOW();
+    RETURN NEW;
+END;
+$$ language 'plpgsql';
+
+-- Tạo triggers để tự động cập nhật updated_at
+CREATE TRIGGER update_speaking_topics_updated_at 
+    BEFORE UPDATE ON speaking_topics 
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_speaking_lessons_updated_at 
+    BEFORE UPDATE ON speaking_lessons 
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_speaking_questions_updated_at 
+    BEFORE UPDATE ON speaking_questions 
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- Tạo RLS (Row Level Security) policies
+ALTER TABLE speaking_topics ENABLE ROW LEVEL SECURITY;
+ALTER TABLE speaking_lessons ENABLE ROW LEVEL SECURITY;
+ALTER TABLE speaking_questions ENABLE ROW LEVEL SECURITY;
+
+-- Policy cho speaking_topics - cho phép tất cả authenticated users đọc/ghi
+CREATE POLICY "Allow all operations for authenticated users on speaking_topics" 
+    ON speaking_topics FOR ALL 
+    TO authenticated 
+    USING (true) 
+    WITH CHECK (true);
+
+-- Policy cho speaking_lessons - cho phép tất cả authenticated users đọc/ghi
+CREATE POLICY "Allow all operations for authenticated users on speaking_lessons" 
+    ON speaking_lessons FOR ALL 
+    TO authenticated 
+    USING (true) 
+    WITH CHECK (true);
+
+-- Policy cho speaking_questions - cho phép tất cả authenticated users đọc/ghi
+CREATE POLICY "Allow all operations for authenticated users on speaking_questions" 
+    ON speaking_questions FOR ALL 
+    TO authenticated 
+    USING (true) 
+    WITH CHECK (true);
+
+-- Thêm dữ liệu mẫu
+INSERT INTO speaking_topics (title, description) VALUES
+('Gia đình', 'Các chủ đề về gia đình, mối quan hệ trong gia đình'),
+('Công việc', 'Các chủ đề về công việc, nghề nghiệp, môi trường làm việc'),
+('Du lịch', 'Các chủ đề về du lịch, địa điểm, trải nghiệm'),
+('Ẩm thực', 'Các chủ đề về món ăn, nấu ăn, nhà hàng'),
+('Học tập', 'Các chủ đề về học tập, giáo dục, kỹ năng')
+ON CONFLICT DO NOTHING;
+
+-- Thêm bài học mẫu cho chủ đề Gia đình
+INSERT INTO speaking_lessons (topic_id, title, description)
+SELECT 
+    (SELECT id FROM speaking_topics WHERE title = 'Gia đình' LIMIT 1),
+    title,
+    description
+FROM (VALUES
+    ('Giới thiệu gia đình', 'Bài học cơ bản về cách giới thiệu các thành viên trong gia đình'),
+    ('Mối quan hệ gia đình', 'Học về các mối quan hệ và cách gọi xưng trong gia đình'),
+    ('Hoạt động gia đình', 'Chia sẻ về các hoạt động thường làm cùng gia đình')
+) AS lessons(title, description)
+ON CONFLICT DO NOTHING;
+
+-- Thêm câu hỏi mẫu cho bài học "Giới thiệu gia đình"
+INSERT INTO speaking_questions (lesson_id, question_text, difficulty)
+SELECT 
+    (SELECT id FROM speaking_lessons WHERE title = 'Giới thiệu gia đình' LIMIT 1),
+    question_text,
+    difficulty
+FROM (VALUES
+    ('Bạn có thể giới thiệu về gia đình của mình không?', 'easy'),
+    ('Người bạn yêu thích nhất trong gia đình là ai? Tại sao?', 'easy'),
+    ('Bạn thường làm gì cùng gia đình vào cuối tuần?', 'medium')
+) AS questions(question_text, difficulty)
+ON CONFLICT DO NOTHING;
+
+-- Thêm câu hỏi mẫu cho bài học "Mối quan hệ gia đình"
+INSERT INTO speaking_questions (lesson_id, question_text, difficulty)
+SELECT 
+    (SELECT id FROM speaking_lessons WHERE title = 'Mối quan hệ gia đình' LIMIT 1),
+    question_text,
+    difficulty
+FROM (VALUES
+    ('Bạn có anh chị em không? Bạn thân thiết với ai nhất?', 'easy'),
+    ('Nếu có con, bạn muốn dạy con những giá trị gì?', 'hard'),
+    ('Bạn nghĩ gì về việc sống chung với gia đình?', 'medium')
+) AS questions(question_text, difficulty)
+ON CONFLICT DO NOTHING;
+
+-- Thêm bài học mẫu cho chủ đề Công việc
+INSERT INTO speaking_lessons (topic_id, title, description)
+SELECT 
+    (SELECT id FROM speaking_topics WHERE title = 'Công việc' LIMIT 1),
+    title,
+    description
+FROM (VALUES
+    ('Giới thiệu nghề nghiệp', 'Cách giới thiệu về công việc và nghề nghiệp'),
+    ('Môi trường làm việc', 'Thảo luận về môi trường làm việc lý tưởng'),
+    ('Thăng tiến nghề nghiệp', 'Chia sẻ về mục tiêu và kế hoạch nghề nghiệp')
+) AS lessons(title, description)
+ON CONFLICT DO NOTHING;
+
+-- Thêm câu hỏi mẫu cho bài học "Giới thiệu nghề nghiệp"
+INSERT INTO speaking_questions (lesson_id, question_text, difficulty)
+SELECT 
+    (SELECT id FROM speaking_lessons WHERE title = 'Giới thiệu nghề nghiệp' LIMIT 1),
+    question_text,
+    difficulty
+FROM (VALUES
+    ('Bạn làm nghề gì?', 'easy'),
+    ('Bạn thích gì nhất về công việc của mình?', 'easy'),
+    ('Bạn đã từng thay đổi nghề nghiệp chưa? Tại sao?', 'hard')
+) AS questions(question_text, difficulty)
+ON CONFLICT DO NOTHING;
+
+
+

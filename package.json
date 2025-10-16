@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@supabase/mcp-server-supabase": "^0.5.6",
+    "react-admin": "5.12.0"
+  }
+}
